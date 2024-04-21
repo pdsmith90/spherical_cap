@@ -91,7 +91,7 @@ Snm_cap=Pnm_cap.*sin(m.*lambda_prime.*pi./180);
 
 % hanging out in front of the equation 9
 JKcoeff=(Pnalpha(3:end)-Pnalpha(1:(end-2)))./...
-    (((2.*n(2:(end-1))).^2).*(1-cosalpha));
+    (((2.*n(2:(end-1))+1).^2).*(1-cosalpha));
 % note this part now removes the degree-zero and 
 % is thus essentially not 1-indexed
 Jnm_cap=JKcoeff.*Rnm_cap(2:end,2:end);
