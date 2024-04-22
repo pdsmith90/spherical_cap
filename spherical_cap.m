@@ -110,14 +110,18 @@ Vn(1)=G.*Mcap./r;
 % sum over order
 Jn_cap=sum(Jnm_cap,2);
 Kn_cap=sum(Knm_cap,2);
-Rn_sat=sum(Rnm_sat(2:end),2);
-Sn_sat=sum(Snm_sat(2:end),2);
+
+Rn_sat=sum(Rnm_sat(2:end,2:end),2);
+Sn_sat=sum(Snm_sat(2:end,2:end),2);
 
 % hanging out in front
 Vncoeff=-G.*Mcap./r.*(a./r).^n(2:end-1);
 
 % potential per degree
 Vn(2:end)=Vncoeff.*(Jn_cap.*Rn_sat+Kn_cap.*Sn_sat);
+
+% convert to m^s / s^2
+Vn=1e6.*Vn;
 
 %% power spectra (Eq 15 & 16)
 sigma_n=sqrt(Jn_cap.^2+Kn_cap.^2);
