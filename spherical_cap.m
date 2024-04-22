@@ -94,8 +94,8 @@ JKcoeff=(Pnalpha(3:end)-Pnalpha(1:(end-2)))./...
     (((2.*n(2:(end-1))+1).^2).*(1-cosalpha));
 % note this part now removes the degree-zero and 
 % is thus essentially not 1-indexed
-Jnm_cap=JKcoeff.*Rnm_cap(2:end,2:end);
-Knm_cap=JKcoeff.*Snm_cap(2:end,2:end);
+Jnm_cap=JKcoeff.*Rnm_cap(2:end,:);
+Knm_cap=JKcoeff.*Snm_cap(2:end,:);
 
 % clean up some intermediate calculated vars
 clear JKcoeff RNM_cap SNM_cap cosalpha;
@@ -111,8 +111,8 @@ Vn(1)=G.*Mcap./r;
 Jn_cap=sum(Jnm_cap,2);
 Kn_cap=sum(Knm_cap,2);
 
-Rn_sat=sum(Rnm_sat(2:end,2:end),2);
-Sn_sat=sum(Snm_sat(2:end,2:end),2);
+Rn_sat=sum(Rnm_sat(2:end,:),2);
+Sn_sat=sum(Snm_sat(2:end,:),2);
 
 % hanging out in front
 Vncoeff=-G.*Mcap./r.*(a./r).^n(2:end-1);
