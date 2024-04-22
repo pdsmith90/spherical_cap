@@ -1,4 +1,4 @@
-function [Vn, Phi_n, Psi_n]=...
+function [Vn, Phi_n, Psi_n, grn, gtn, gln]=...
     spherical_cap(r, theta, lambda,...
     alpha,sigma,theta_prime,lambda_prime,nmax)
 %% calculate SH expansion for a cap anywhere on sphere
@@ -41,6 +41,8 @@ function [Vn, Phi_n, Psi_n]=...
 % *** need NALF.m function ***
 % *** need legendremultitheta.m function ***
 %
+% edit: added gravitational acceleration elements to output,
+% g_r, g_theta, g_lambda
 
 %% constants
 G=6.6743e-20; % universal gravitational constant,  km^3 * kg^-1 * s^-2
@@ -66,8 +68,11 @@ Mcap=sigma.*Acap; % mass of cap, kg
 % legendre polys have to be calculated for colatitude of cap
 % and for the colatitude of satellite.
 % !do not feed vectors as angles for convenience!
-Pnm_sat=NALF(theta,nmax,0);
+[Pnm_sat,ce]=NALF(theta,nmax,0,1);
+dPnm_sat=ce{1};clear ce;
+
 Pnm_cap=NALF(theta_prime,nmax,0);
+
 
 % also need to calculate degree-only legendre polys for generating angle
 % *** calling legendremultitheta.m ***
@@ -85,6 +90,14 @@ m=(0:1:nmax);
 
 Rnm_sat=Pnm_sat.*cos(m.*lambda.*pi./180);
 Snm_sat=Pnm_sat.*sin(m.*lambda.*pi./180);
+
+% derivative wrt. theta
+Rtnm_sat=dPnm_sat.*cos(m.*lambda.*pi./180);
+Stnm_sat=dPnm_sat.*sin(m.*lambda.*pi./180);
+
+% derivative wrt. lambda
+Rlnm_sat=-m.*Pnm_sat.*sin(m.*lambda.*pi./180);
+Slnm_sat=m.*Pnm_sat.*cos(m.*lambda.*pi./180);
 
 Rnm_cap=Pnm_cap.*cos(m.*lambda_prime.*pi./180);
 Snm_cap=Pnm_cap.*sin(m.*lambda_prime.*pi./180);
@@ -119,6 +132,23 @@ Vncoeff=-G.*Mcap./r.*(a./r).^n(2:end-1);
 
 % potential per degree
 Vn(2:end)=Vncoeff.*(Jn_cap.*Rn_sat+Kn_cap.*Sn_sat);
+
+% derivative wrt. r
+grn=1e3.*-(n(1:end-1)+1)./r.*Vn;
+
+% derivative wrt. theta
+gtn=zeros(nmax+1,1);
+Rtn_sat=sum(Rtnm_sat(2:end,:),2);
+Stn_sat=sum(Stnm_sat(2:end,:),2);
+gtn(2:end)=1e3.*Vncoeff./r.*(Jn_cap.*Rtn_sat+Kn_cap.*Stn_sat);
+
+% derivative wrt. lambda
+gln=zeros(nmax+1,1);
+Rln_sat=sum(Rtnm_sat(2:end,:),2);
+Sln_sat=sum(Stnm_sat(2:end,:),2);
+gln(2:end)=1e3.*Vncoeff./(r.*sind(theta)).*(Jn_cap.*Rln_sat+Kn_cap.*Sln_sat);
+
+
 
 % convert to m^s / s^2
 Vn=1e6.*Vn;

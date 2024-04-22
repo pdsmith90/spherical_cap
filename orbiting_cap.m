@@ -92,32 +92,101 @@ lambdasat=lambdasat.*180./pi;
 %% calculate potential due to cap at every time step
 % this part takes a while to run
 
-thetacap=45;
-lambdacap=108;
+thetacap=90-25;
+lambdacap=67;
 alphacap=0.5;
 sigmacap=1e9;
 
-nmax=60;
+Acap = 2.*pi.*Re.^2.*(1-cosd(alphacap)); % area of spherical cap
+Mcap=sigmacap.*Acap; % mass of cap, kg
+Gt=1e12; % kg tp Gt
+
+nmax=120;
 Vn=zeros(nmax+1,length(timevec));
 Psi_n=zeros(nmax,length(timevec));
 Phi_n=zeros(nmax,length(timevec));
-
+grn=zeros(nmax+1,length(timevec));
+gtn=zeros(nmax+1,length(timevec));
+gln=zeros(nmax+1,length(timevec));
 for ii=1:length(timevec)
 
-    [Vn(:,ii), Phi_n(:,ii), Psi_n(:,ii)]=...
+    [Vn(:,ii), Phi_n(:,ii), Psi_n(:,ii),...
+        grn(:,ii), gtn(:,ii), gln(:,ii)]=...
         spherical_cap(a, thetasat(ii), lambdasat(ii),...
         alphacap,sigmacap,thetacap,lambdacap,nmax);
-
 end
 
+%% calculate acceleration due to cap at every time step
+% d/dr (V)
+%n=(0:1:nmax)';
+
+% radial direction is easy b/c direct function of potential
+%grn=-(n+1)./a.*Vn;
+
+gn=grn+gtn+gln;
+
+
+
 %% visualize
-figure(1);
-plot(lambdasat,thetasat,'.')
 
-figure(2);
-plot(timevec,sum(Vn,1))
-figure(3);
+figure(1);clf;
+subplot(3,1,1)
+plot(timevec./T,sum(gn,1),'.');
+ylabel('acceleration experienced')
+hold on
+%[pks,locs]=findpeaks(abs(sum(gn,1)),timevec,'MinPeakHeight',1e-6);
+%plot(locs./T,pks,'ro')
+subplot(3,1,2)
+plot(timevec./T,90-thetasat,'.');
+ylabel('latitude')
+subplot(3,1,3)
+plot(timevec./T,lambdasat,'.');
+ylabel('longitude')
+xlabel('orbit rev')
 
+
+figure(2); clf
+scatter(lambdasat,90-thetasat,1,sum(Vn,1));
+colorbar
+title(strcat('potential of ',...
+    num2str(alphacap),' degree cap, ',...
+    num2str(Mcap./Gt),' Gt'))
+hold on
+plot(lambdacap,90-thetacap,'*')
+
+
+figure(3); clf
+scatter(lambdasat,90-thetasat,1,sum(gn,1));
+colorbar
+title(strcat('accel of ',...
+    num2str(alphacap),' degree cap, ',...
+    num2str(Mcap./Gt),' Gt'))
+hold on
+plot(lambdacap,90-thetacap,'*')
+
+
+figure(4);clf
+
+[pxx,f]=plomb(sum(gn,1),timevec,dt,10,'normalized');
+plot(f*T,pxx);hold on
+xlabel('# periods')
+xlim([0,timevec(end)./T])
+xticks(0:1:floor(timevec(end)./T))
+grid on
+title('normalized power spectrum')
+
+figure(5);clf
+
+Y=fft(sum(gn,1));
+Fs=1./dt;
+L=length(timevec);
+ff=Fs/L*(0:(L/2));
+
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+plot(ff*T,P1);
+xlim([0,15])
 
 %% todo
 
