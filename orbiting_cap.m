@@ -31,7 +31,8 @@ altSPIRE=400; %??? or is it 500km?
 %% generate orbit
 % pick an orbit, eg. GRACE-FO
 alt=500; %altitude, km
-i=89; % inclination, deg
+%i=89; % inclination, deg
+i=89;
 
 % orbit properties
 % assume circular orbit in 2-body motion
@@ -118,18 +119,16 @@ end
 
 %% calculate acceleration due to cap at every time step
 % d/dr (V)
-%n=(0:1:nmax)';
 
-% radial direction is easy b/c direct function of potential
-%grn=-(n+1)./a.*Vn;
+gn=sqrt(grn.^2+gtn.^2+gln.^2);
 
-gn=grn+gtn+gln;
+%% Frequency periodogram
 
-
+[pxx,f]=plomb(sum(gn,1),timevec./T,[],1,'normalized');
 
 %% visualize
 
-figure(1);clf;
+figure(1);clf; % accel and geocentric coords vs time
 subplot(3,1,1)
 plot(timevec./T,sum(gn,1),'.');
 ylabel('acceleration experienced')
@@ -145,7 +144,7 @@ ylabel('longitude')
 xlabel('orbit rev')
 
 
-figure(2); clf
+figure(2); clf % ground track color mapped to potential
 scatter(lambdasat,90-thetasat,1,sum(Vn,1));
 colorbar
 title(strcat('potential of ',...
@@ -155,7 +154,7 @@ hold on
 plot(lambdacap,90-thetacap,'*')
 
 
-figure(3); clf
+figure(3); clf % ground track color mapped to accel
 scatter(lambdasat,90-thetasat,1,sum(gn,1));
 colorbar
 title(strcat('accel of ',...
@@ -164,48 +163,27 @@ title(strcat('accel of ',...
 hold on
 plot(lambdacap,90-thetacap,'*')
 
+%% power density plot 
+figure(4); %clf 
 
-figure(4);clf
-
-[pxx,f]=plomb(sum(gn,1),timevec,dt,10,'normalized');
-plot(f*T,pxx);hold on
-xlabel('# periods')
+plot(f,pxx);hold on
+xlabel('frequency, 1/rev')
 xlim([0,timevec(end)./T])
 xticks(0:1:floor(timevec(end)./T))
 grid on
-title('normalized power spectrum')
+title(strcat('Normalized Power Spectrum'))%, i=',num2str(i),' degrees'))
+legend('i=89 degrees','i=24 degrees')
 
-figure(5);clf
-
-Y=fft(sum(gn,1));
-Fs=1./dt;
-L=length(timevec);
-ff=Fs/L*(0:(L/2));
-
-P2 = abs(Y/L);
-P1 = P2(1:L/2+1);
-P1(2:end-1) = 2*P1(2:end-1);
-plot(ff*T,P1);
-xlim([0,15])
-
-%% todo
-
-% generate time series of inertial position of satellite due to 2-body
-
-% rotate inertial position of satellite over time into earth fixed
-% earth rotation angle is: ( OMdot_s + OMdot_e ) * time
-
-% pick a cap
-
-% plot groundtrack + cap + rectangular projection. (GMT)
-
-% for each time step, get Vn Phi_n & Psi_n
-
-% visualize this data somehow
-% first, plot total potential experienced as a function of time
-% alongside orbital elements (specifically ecef angles)
-%
-
-% convert potential to accel by doing derivative per sh degree
-
+% figure(5);clf
+% 
+% Y=fft(sum(gn,1));
+% Fs=1./dt;
+% L=length(timevec);
+% ff=Fs/L*(0:(L/2));
+% 
+% P2 = abs(Y/L);
+% P1 = P2(1:L/2+1);
+% P1(2:end-1) = 2*P1(2:end-1);
+% plot(ff*T,P1);
+% xlim([0,15])
 
