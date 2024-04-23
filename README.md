@@ -8,4 +8,4 @@ spherical_cap_pole.m is a simplified spherical cap located on the pole and thus 
 
 spherical_cap.m is for arbitrary location cap and field point, includes calculating gravity vector
 
-orbiting_cap.m is wrapper script for spherical_cap.m which can compute potential and gravity anomaly for multiple orbits of a circular satellite, assuming only 2-body and ascending node precession due to J2. 
+orbiting_cap.m is wrapper script for spherical_cap.m which can compute potential and gravity anomaly as a function of time for an orbiting satellite, assuming circular orbit and only 2-body and ascending node precession due to J2. 
