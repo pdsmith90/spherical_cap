@@ -7,9 +7,9 @@ G=6.6743e-20; % universal gravitational constant,  km^3 * kg^-1 * s^-2
 Re=6378.3; % equatorial radius of earth, km
 
 %% cap constants
-alpha_d=1; % generating angle of cap, deg
-sigma = 1e10; % areal density of surface mass distribution, kg/km^2
-% 1e12 = area density of 1km depp water at 1000kg/m^3
+alpha_d=0.5; % generating angle of cap, deg
+sigma = 1e9; % areal density of surface mass distribution, kg/km^2
+% 1e12 = area density of 1km deep water at 1000kg/m^3
 
 cosalpha=cosd(alpha_d); % defined for convenience
 
@@ -22,17 +22,17 @@ Gt=1e12;
 %% satellite coordinates
 
 % 1 = vary colatitude of satellite
-varytheta=1;
+varytheta=0;
 
 if varytheta==1 
     theta_d = 0:1:180;
-    alt=500;
+    altvec=500;
 else
-    theta_d = 90; % colatitude of satellite
-    alt=(0:1:1000); % altitude of satellite
+    theta_d = 0; % colatitude of satellite
+    altvec=(0:1:1000); % altitude of satellite
 end
 
-r = Re+alt; % distance from center of earth to satellite, km
+r = Re+altvec; % distance from center of earth to satellite, km
 
 %% SH nmax & legendre polys
 
@@ -71,21 +71,31 @@ Vn(2:end,:)=-G.*Mcap./r.*(Re./r).^n(2:end-1)./ ...
 Vn=Vn.*1e6;
 
 figure(1);clf;
-%plot(altvec,Vn(1,:));hold on
-%plot(altvec,Vn(2,:));
-%plot(altvec,Vn(3,:));
-%plot(altvec,Vn(4,:));
-%plot(altvec,Vn(100,:))
-%legend('n=0','n=1','n=2','n=3','n=100')
-for ii=1:nmax
-    plot(theta_d,Vn(ii,:)); hold on
-end
+% for ii=1:nmax
+%     plot(theta_d,Vn(ii,:)); hold on
+% end
+% plot(theta_d,Vn(20,:))
+% plot(theta_d,Vn(40,:))
+% plot(theta_d,Vn(40,:))
 
-%xlabel('altitude above cap, km')
-%ylabel('gravitational potential, m^2/s^2')
-
-figure(2);clf;
-plot(theta_d,sum(Vn,1))
+plot(altvec,Vn(1,:));hold on
+plot(altvec,Vn(11,:));
+plot(altvec,Vn(21,:));
+plot(altvec,Vn(41,:));
+plot(altvec,Vn(61,:));
+plot(altvec,Vn(101,:));
+legend('n=0','n=10','n=20','n=40','n=60','n=100','location','east')
+% for ii=1:nmax
+%     plot(theta_d,Vn(ii,:)); hold on
+% end
+title('Gravitational potential due to 10 Gt spherical cap')
+xlabel('altitude above cap, km')
+ylabel('gravitational potential, m^2/s^2')
+% 
+% figure(2);clf;
+% plot(theta_d,sum(Vn,1))
+% xlabel('Angle away from cap, deg')
+% ylabel('Gravitational Potential due to cap')
 
 %figure(3);clf;
 %plot(Vn(:,1000))
