@@ -124,7 +124,23 @@ gn=sqrt(grn.^2+gtn.^2+gln.^2);
 
 %% Frequency periodogram
 
-[pxx,f]=plomb(sum(gn,1),timevec./T,[],1,'normalized');
+%[pxx,f]=plomb(sum(gn,1),timevec,[],1,'normalized');
+
+%[pxx,f]=plomb(sum(gn,1),timevec./T,[],1);%,'normalized');
+
+Y=fft(sum(gn,1));
+
+Fs = 1/10;
+samplingT=timevec(end);
+L=length(timevec);
+
+f = Fs.*(0:floor(L/2))/L;
+
+P2 = abs(Y/L);
+P1 = P2(1:floor(L/2)+1);
+P1(2:end-1) = 2*P1(2:end-1);
+
+pxx=P1;
 
 %% visualize
 
@@ -166,13 +182,14 @@ plot(lambdacap,90-thetacap,'*')
 %% power density plot 
 figure(4); %clf 
 
-plot(f,pxx);hold on
-xlabel('frequency, 1/rev')
-xlim([0,timevec(end)./T])
-xticks(0:1:floor(timevec(end)./T))
-grid on
-title(strcat('Normalized Power Spectrum'))%, i=',num2str(i),' degrees'))
-legend('i=89 degrees','i=24 degrees')
+plot(f.*T,pxx);hold on
+xlabel('frequency, 1/T')
+%xlim([0,timevec(end)./T])
+%xticks(0:1:floor(timevec(end)./T))
+%grid on
+%title(strcat('Normalized Power Spectrum'))%, i=',num2str(i),' degrees'))
+
+%legend('i=89 degrees','i=24 degrees')
 
 % figure(5);clf
 % 
